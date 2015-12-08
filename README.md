@@ -1,4 +1,4 @@
-# keepalied-tools
+# keepalived-tools
 ## keepalived_checker.py
 ### Description
 Check duplications or typo of VRRP IDs (vrid), Virtual IP Addresses (vrip) and Virtual Servers (vs) from 'keepalived.conf'.
@@ -14,20 +14,20 @@ Check duplications or typo of VRRP IDs (vrid), Virtual IP Addresses (vrip) and V
 Simply, run it.
 
 ```
-$ ./keepalived_check.py
+$ ./keepalived_checker.py
 ```
 
 If your config file is located on non default path, add `-f`.
 
 ```
-$ ./keepalived_check.py -f CONF_PATH
+$ ./keepalived_checker.py -f CONF_PATH
 ```
 
 ### Output Examples
 You will get output like this if NG has found.
 
 ```
-$ ./keepalived_check.py
+$ ./keepalived_checker.py
 'virtual_server' duplications found:
     192.168.1.1:80
         - /etc/keepalived/keepalived.conf:20
@@ -37,7 +37,7 @@ $ ./keepalived_check.py
 If no errors found, get this.
 
 ```
-$ ./keepalived_check.py
+$ ./keepalived_checker.py
 OK
 ```
 
