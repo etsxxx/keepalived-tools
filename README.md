@@ -29,7 +29,7 @@ You will get output like this if NG has found.
 ```
 $ ./keepalived_checker.py
 'virtual_server' duplications found:
-    192.168.1.1:80
+    192.168.1.1:80/tcp
         - /etc/keepalived/keepalived.conf:20
         - /etc/keepalived/conf.d/test.conf:2
 ```
@@ -43,7 +43,8 @@ OK
 
 ### Known Issues
 - This script does not treat syntax error.
-  - [kc](http://maoe.hatenadiary.jp/entry/20090928/1254159495) is a great implementation for syntax check.
+  - [gokc](https://github.com/yuuki/gokc) is a great implementation for syntax check.
+  - [kc](http://maoe.hatenadiary.jp/entry/20090928/1254159495) is also.
 
 # Author
 [Etsushi Nakano](https://github.com/etsxxx)
