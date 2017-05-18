@@ -4,12 +4,12 @@
 keepalived_checker.py
 desc:
     check keeepalived.conf.
-updated: 2015-11-20
+updated: 2016-05-23
 '''
 import os, sys, re
 import glob
 import optparse
-version = "0.1.0"
+version = "0.2.0"
 
 def_conf_path = '/etc/keepalived/keepalived.conf'
 
@@ -19,6 +19,7 @@ regex_include = re.compile(r'''^\s*include\s+(?P<path>[^\s]+).*$''', flags=re.IG
 regex_vrid = re.compile(r'''^\s*virtual_router_id\s+(?P<vrid>\d+).*$''', flags=re.IGNORECASE)
 regex_vip = re.compile(r'''^\s*(?P<vip>(\d{1,3}\.){3}\d{1,3}).*$''', flags=re.IGNORECASE)
 regex_vs = re.compile(r'''^\s*virtual_server\s+(?P<vip>(\d{1,3}\.){3}\d{1,3})\s+(?P<port>\d+).*$''', flags=re.IGNORECASE)
+regex_protocol = re.compile(r'''^\s*protocol\s+(?P<protocol>[^\s]+).*$''', flags=re.IGNORECASE)
 
 
 def read_config(path=""):
@@ -67,13 +68,32 @@ def parse_config(config=[]):
         # virtual_server
         m = regex_vs.match(line)
         if m :
-            virtual_servers.append(((m.group('vip'),m.group('port')), index))
+            # append previous virtual_server info
+            try:
+                virtual_servers.append(( (vs_info['vip'], '%s/%s' % (vs_info['port'], vs_info['protocol'].lower()) ), vs_info['index'] ))
+            except:
+                pass
+            vs_info = {
+                'vip': m.group('vip'),
+                'port': m.group('port'),
+                'proto': 'tcp',
+                'index': index
+            }
             continue
+        # virtual_server proto
+        m = regex_protocol.match(line)
+        if m and vs_info:
+            vs_info['protocol'] = m.group('protocol')
         # vip
         m = regex_vip.match(line)
         if m :
             vips.append((m.group('vip'), index))
             continue
+
+    try:
+        virtual_servers.append(( (vs_info['vip'], '%s/%s' % (vs_info['port'], vs_info['protocol'].lower()) ), vs_info['index'] ))
+    except:
+        pass
 
     return vrids, vips, virtual_servers
 
