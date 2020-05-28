@@ -1,3 +1,7 @@
+## 0.4.0 (May 28, 2020)
+
+* Python3 support
+
 ## 0.3.0 (August 24, 2017)
 
 IMPROVEMENTS:

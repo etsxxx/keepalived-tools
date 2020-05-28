@@ -1,15 +1,16 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 '''
 keepalived_checker.py
 desc:
     check keeepalived.conf.
-updated: 2017-08-24
+updated: 2020-05-28
 '''
 import os, sys, re
 import glob
 import optparse
-version = "0.3.0"
+import copy
+version = "0.4.0"
 
 options = None
 def_conf_path = '/etc/keepalived/keepalived.conf'
@@ -17,6 +18,13 @@ def_conf_path = '/etc/keepalived/keepalived.conf'
 regex_confline = re.compile(r'''^(?P<param>[^!#]+)(.*)$''', flags=re.IGNORECASE)
 regex_include = re.compile(r'''^\s*include\s+(?P<path>[^\s]+).*$''', flags=re.IGNORECASE)
 
+
+def list_difference(l1, l2):
+    result = copy.copy(l1)
+    for v in l2:
+        if v in result:
+            result.remove(v)
+    return result
 
 # config regex
 regex_vrrp_instance = re.compile(r'''^\s*vrrp_instance\s+(?P<name>[^{\s]+).*$''', flags=re.IGNORECASE)
@@ -260,12 +268,10 @@ class KeepalivedConfigChecker(object):
         return (len(dups_vrrps) + len(dups_vrids)) == 0
 
     def __check_vrrps_dup(self):
-        vrrp_list = list( map(lambda x: x['name'], self.vrrps) )
-        unique_list = list(set(vrrp_list))
+        all_list = list( map(lambda x: x['name'], self.vrrps) )
+        unique_list = list(set(all_list))
 
-        for ele in unique_list:
-            vrrp_list.remove(ele)
-
+        vrrp_list = list_difference(all_list, unique_list)
         if len(vrrp_list) > 0 :
             print("'vrrp_instance' duplications found:")
             for ele in vrrp_list:
@@ -278,12 +284,10 @@ class KeepalivedConfigChecker(object):
         return vrrp_list
 
     def __check_vrids_dup(self):
-        vrid_list = list( map(lambda x: x['vrid'], self.vrids) )
-        unique_list = list(set(vrid_list))
+        all_list = list( map(lambda x: x['vrid'], self.vrids) )
+        unique_list = list(set(all_list))
 
-        for ele in unique_list:
-            vrid_list.remove(ele)
-
+        vrid_list = list_difference(all_list, unique_list)
         if len(vrid_list) > 0 :
             print("'virtual_router_id' duplications found:")
             for ele in vrid_list:
@@ -303,12 +307,10 @@ class KeepalivedConfigChecker(object):
         return (len(dups_vip) + len(dups_vs) + len(ng_vips)) == 0
 
     def __check_vips_dup(self):
-        vip_list = map(lambda x: x['vip'], self.vips)
-        unique_list = list(set(vip_list))
+        all_list = list(map(lambda x: x['vip'], self.vips))
+        unique_list = list(set(all_list))
 
-        for ele in unique_list:
-            vip_list.remove(ele)
-
+        vip_list = list_difference(all_list, unique_list)
         if len(vip_list) > 0 :
             print("'virtual_ipaddress' duplications found:")
             for ele in vip_list:
@@ -322,12 +324,10 @@ class KeepalivedConfigChecker(object):
         return vip_list
 
     def __check_vs_dup(self):
-        vs_list = map(lambda x: (x['vip'], x['port'], x['proto']), self.virtual_servers)
-        unique_list = list(set(vs_list))
+        all_list = list(map(lambda x: (x['vip'], x['port'], x['proto']), self.virtual_servers))
+        unique_list = list(set(all_list))
 
-        for ele in unique_list:
-            vs_list.remove(ele)
-
+        vs_list = list_difference(all_list, unique_list)
         if len(vs_list) > 0 :
             print("'virtual_server' duplications found:")
             for ele in vs_list:
@@ -342,7 +342,7 @@ class KeepalivedConfigChecker(object):
 
 
     def __check_vips_unmanaged(self):
-        managed_list = map(lambda x: x['vip'], self.vips)
+        managed_list = list(map(lambda x: x['vip'], self.vips))
         unmanaged_list = list()
 
         for vs in self.virtual_servers:
@@ -368,12 +368,10 @@ class KeepalivedConfigChecker(object):
 
 
     def __check_vsgs_dup(self):
-        vsg_list = map(lambda x: x['groupname'], self.vsgs)
-        unique_list = list(set(vsg_list))
-
-        for ele in unique_list:
-            vsg_list.remove(ele)
-
+        all_list = list(map(lambda x: x['groupname'], self.vsgs))
+        unique_list = list(set(all_list))
+        
+        vsg_list = list_difference(all_list, unique_list)
         if len(vsg_list) > 0 :
             print("'virtual_server_group XXXXX' duplications found:")
             for ele in vsg_list:
@@ -387,12 +385,10 @@ class KeepalivedConfigChecker(object):
         return vsg_list
 
     def __check_vsg_endpoints_dup(self):
-        vsge_list = map(lambda x: x['groupname'], self.vsg_endpoints)
-        unique_list = list(set(vsge_list))
+        all_list = list(map(lambda x: x['groupname'], self.vsg_endpoints))
+        unique_list = list(set(all_list))
 
-        for ele in unique_list:
-            vsge_list.remove(ele)
-
+        vsge_list = list_difference(all_list, unique_list)
         if len(vsge_list) > 0 :
             print("'virtual_server group XXXXX' duplications found:")
             for ele in vsge_list:
@@ -405,7 +401,7 @@ class KeepalivedConfigChecker(object):
         return vsge_list
 
     def __check_vsgs_unmanaged(self):
-        managed_list = map(lambda x: x['groupname'], self.vsgs)
+        managed_list = list(map(lambda x: x['groupname'], self.vsgs))
         unmanaged_list = list()
 
         for vsge in self.vsg_endpoints:

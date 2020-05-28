@@ -4,11 +4,13 @@
 Check duplications or typo of VRRP IDs (vrid), Virtual IP Addresses (vrip) and Virtual Servers (vs) from 'keepalived.conf'.
 
 ### Tested on
-- CentOS 6
-- keepalived-1.2.7
+- CentOS 6 (+ python 2.6)
+- CentOS 7 (+ python 2.7)
+- Ubuntu 20.04 (+ python 3.8)
+- keepalived v1.2.7, v2.0.19
 
 ### Required
-- Python 2.6 or 2.7
+- Python
 
 ### Usage
 Simply, run it.
